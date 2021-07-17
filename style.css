@@ -3,4 +3,102 @@ html, body {
     margin: 0;
     height: 100%;
     width: 100%;
+    background-color: lightgray;
+}
+#header {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#scoreboard {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#scoreboard span {
+    padding: 50px;
+}
+#gameboard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#gameboardGrid {
+    display: grid;
+    border: 2px solid blue;
+    grid-template-columns: 150px;
+    grid-template-rows: 150px;
+    height: 450px;
+    width: 450px;
+}
+#playerTurn {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+}
+#gridItem1-1{
+    border: 2px solid black;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+#gridItem1-2{
+    border: 2px solid black;
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+#gridItem1-3{
+    border: 2px solid black;
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 2;
+}
+#gridItem2-1{
+    border: 2px solid black;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 3;    
+}
+#gridItem2-2{
+    border: 2px solid black;
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 3;
+}
+#gridItem2-3{
+    border: 2px solid black;
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 3;
+}
+#gridItem3-1{
+    border: 2px solid black;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 3;
+    grid-row-end: 4;
+}
+#gridItem3-2{
+    border: 2px solid black;
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 3;
+    grid-row-end: 4;
+}
+#gridItem3-3{
+    border: 2px solid black;
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 4;
 }

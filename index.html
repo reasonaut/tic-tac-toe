@@ -3,9 +3,33 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="style.css">
-        <title></title>
+        <title>tic-tac-toe</title>
     </head>
     <body>
+        <div id="gameContainer">
+            <div id="header"><h2>Tic-Tac-Toe</h2></div>
+            <div id="scoreboard">
+                <span id="playerOne"><h3>Player 1<br></h3></span>
+                <span id="turnCounter"><h3>Turn<br></h3></span>
+                <span id="playerTwo"><h3>Player 2<br></h3></span>
+            </div>
+            <div id="gameboard">
+                <div id='gameboardGrid'>
+                    <div id="gridItem1-1"></div>
+                    <div id="gridItem1-2"></div>
+                    <div id="gridItem1-3"></div>
+                    <div id="gridItem2-1"></div>
+                    <div id="gridItem2-2"></div>
+                    <div id="gridItem2-3"></div>
+                    <div id="gridItem3-1"></div>
+                    <div id="gridItem3-2"></div>
+                    <div id="gridItem3-3"></div>
+                </div>
+            </div>
+            <div id="playerTurn">
+                <h3>Select tile {player}</h3>
+            </div>
+        </div>
         <script src="script.js"></script>        
     </body>
 </html>

@@ -11,11 +11,13 @@ game = {
     gameboardContainer : document.getElementById('gameboard'),
     gameStatusContainer : document.getElementById('playerTurn'),
     gameStartButton : document.getElementById('gameStartButton'),
-    renderGameboard: function() {
+    initGameboard: function() {
+        this.gameStartButton.addEventListener('click', this.startMatch.bind(this));
+    },
+    renderScoreboard: function() {
         this.turnCountContainer.innerText = this.turnCount;
         this.player1ScoreContainer.innerText = this.player1Score;
         this.player2ScoreContainer.innerText = this.player2Score;
-        this.gameStartButton.addEventListener('click', this.startMatch.bind(this));
     },
     addToScore: function(player) {
         if (player === "playerX") this.player1Score += 1;
@@ -35,10 +37,14 @@ game = {
                 this.gameStatusContainer.innerText = 'Player 0 has been randomly selected to go first - make a selection'
             }
         }
+        if (this.matchState === 'victory') {
+            this.resetRound();
+
+        }
         this.turnCount = 1;
         this.matchState = 'in-progress';
         this.gameStartButton.style.display = 'none';
-        this.renderGameboard();
+        this.renderScoreboard();        
     },
     handleTurn: function() {
         // increment turn count
@@ -52,22 +58,37 @@ game = {
             if (wins === 'X') this.matchState = 'X victory';
             if (wins === 'O') this.matchState = 'O victory';
         }
-        if (parseInt(this.turnCount) === 9) this.roundState = 'tie';
+        else if (parseInt(this.turnCount) === 10) this.roundState = 'tie';
         this.evaluateMatchState();
     },
     evaluateMatchState: function() {
-        if (this.matchState === 'X') {
-            addToScore('playerX');
+        if (this.matchState === 'X victory') {
+            this.addToScore('playerX');
+            this.gameStatusContainer.innerText = 'Player X wins the round and a point!';
+            this.renderScoreboard();
+            this.matchState = 'victory';
+            this.gameStartButton.style.display = 'inline';
         }
-        if (this.matchState === 'O') {
-            addToScore('playerO');
+        if (this.matchState === 'O victory') {
+            this.addToScore('playerO');
+            this.gameStatusContainer.innerText = 'Player O wins the round and a point!';
+            this.renderScoreboard();
+            this.matchState = 'victory';
+            this.gameStartButton.style.display = 'inline';
         }
         if (this.roundState === 'tie') {
             this.resetRound();
+            this.gameStatusContainer.innerText = 'The round is a tie, no points!';
+            renderScoreboard();
         }
     },
     resetRound: function() {
-
+        this.roundState = null;
+        this.turnCount = 1;
+        // clear previous round's board
+        gameboard.populateGridWithNull();
+        gameboard.drawGridContents();
+        this.matchState = 'in-progress';
     },
     checkForWinCondition: function() {
         var acrossTop = function() {
@@ -115,14 +136,14 @@ game = {
 gameboard = {
     grid: [[],[],[]],
     init: function(){
-        this.populateGridNullfunction();
+        this.populateGridWithNull();
         this.drawGridContents();
         this.addGridEventListeners();
     },
-    populateGridNullfunction: function() {
+    populateGridWithNull: function() {
         for (i = 0; i < 3; i++){
             for (j = 0; j < 3; j++){
-                this.grid[i].push(null);
+                this.grid[i][j] = null;
             }
         }
     },
@@ -139,7 +160,7 @@ gameboard = {
                     // set background to O image
                     gridCellDisplay.innerText = 'O';
                 } else {
-                    // leave cell empty
+                    gridCellDisplay.innerText = '';
                 }
             }
         }
@@ -155,6 +176,7 @@ gameboard = {
         }
     },
     addPlayerSelection: function(event) {
+        if (game.matchState === null || game.matchState === 'victory') return;
         cellId = event.target.id.slice(8, 11);
         cellValue = this.grid[cellId[0]][cellId[2]];
         if (!cellValue) {
@@ -177,4 +199,5 @@ gameboard = {
 
 gameboard.init();
 gameboard.drawGridContents();
-game.renderGameboard();
+game.initGameboard();
+game.renderScoreboard();

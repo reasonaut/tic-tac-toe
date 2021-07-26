@@ -2,6 +2,7 @@ game = {
     matchState: null, // in-progress, null, or victory
     playerTurn: null,
     turnCount: null,
+    roundState: null,
     player1Score: 0,
     player2Score: 0,
     player1ScoreContainer : document.getElementById('playerOne'),
@@ -26,7 +27,6 @@ game = {
     startMatch: function(){
         if (!this.matchState){
             // randomly select starting player
-            console.log(this);
             if (Math.floor(Math.random()*2) === 0){
                 this.playerTurn = 'X';
                 this.gameStatusContainer.innerText = 'Player X has been randomly selected to go first - make a selection'
@@ -40,6 +40,35 @@ game = {
         this.gameStartButton.style.display = 'none';
         this.renderGameboard();
     },
+    handleTurn: function() {
+        // increment turn count
+        this.turnCount++;
+        if (this.turnCount){
+            this.turnCountContainer.innerText = this.turnCount;
+        }
+        // check for win condition or turn 10
+        const wins = this.checkForWinCondition();
+        if (wins) {
+            if (wins === 'X') this.matchState = 'X victory';
+            if (wins === 'O') this.matchState = 'O victory';
+        }
+        if (parseInt(this.turnCount) === 9) this.roundState = 'tie';
+        this.evaluateMatchState();
+    },
+    evaluateMatchState: function() {
+        if (this.matchState === 'X') {
+            addToScore('playerX');
+        }
+        if (this.matchState === 'O') {
+            addToScore('playerO');
+        }
+        if (this.roundState === 'tie') {
+            this.resetRound();
+        }
+    },
+    resetRound: function() {
+
+    },
     checkForWinCondition: function() {
         var acrossTop = function() {
             if (gameboard.grid[0][0] === 'X' && gameboard.grid[0][1] === 'X' && gameboard.grid[0][2] === 'X') return 'X';
@@ -52,16 +81,24 @@ game = {
             return null;
         };
         var acrossBotom = function() {
-
+            if (gameboard.grid[2][0] === 'X' && gameboard.grid[2][1] === 'X' && gameboard.grid[2][2] === 'X') return 'X';
+            if (gameboard.grid[2][0] === 'O' && gameboard.grid[2][1] === 'O' && gameboard.grid[2][2] === 'O') return 'O';
+            return null;
         };
         var acrossLeft = function() {
-
+            if (gameboard.grid[0][0] === 'X' && gameboard.grid[1][0] === 'X' && gameboard.grid[2][0] === 'X') return 'X';
+            if (gameboard.grid[0][0] === 'O' && gameboard.grid[1][0] === 'O' && gameboard.grid[2][0] === 'O') return 'O';
+            return null;
         };
         var acrossTopMiddle = function() {
-
+            if (gameboard.grid[0][1] === 'X' && gameboard.grid[1][1] === 'X' && gameboard.grid[2][1] === 'X') return 'X';
+            if (gameboard.grid[0][1] === 'O' && gameboard.grid[1][1] === 'O' && gameboard.grid[2][1] === 'O') return 'O';
+            return null;
         };
         var acrossRight = function() {
-
+            if (gameboard.grid[0][2] === 'X' && gameboard.grid[1][2] === 'X' && gameboard.grid[2][2] === 'X') return 'X';
+            if (gameboard.grid[0][2] === 'O' && gameboard.grid[1][2] === 'O' && gameboard.grid[2][2] === 'O') return 'O';
+            return null;
         };
         var topLeftDiagonal = function () {
 
@@ -71,8 +108,8 @@ game = {
         };
         if (acrossTop() === 'X' || acrossLeftMiddle() === 'X' || acrossBotom() === 'X' || acrossLeft() === 'X' || acrossTopMiddle() === 'X' 
             || acrossRight() === 'X' || topLeftDiagonal() === 'X' || topRightDiagonal() === 'X') return 'X';
-        if (acrossTop() === 'O' || acrossLeftMiddle() === 'O' || acrossBotom() === 'X' || acrossLeft() === 'X' || acrossTopMiddle() === 'X' 
-            || acrossRight() === 'X' || topLeftDiagonal() === 'X' || topRightDiagonal() === 'X') return 'O';
+        if (acrossTop() === 'O' || acrossLeftMiddle() === 'O' || acrossBotom() === 'O' || acrossLeft() === 'O' || acrossTopMiddle() === 'O' 
+            || acrossRight() === 'O' || topLeftDiagonal() === 'O' || topRightDiagonal() === 'O') return 'O';
     }
 };
 gameboard = {
@@ -106,18 +143,7 @@ gameboard = {
                 }
             }
         }
-        if (game.turnCount){
-            game.turnCountContainer.innerText = game.turnCount;
-        }
-        // check for win condition or turn 10
-        const wins = game.checkForWinCondition();
-        if (wins) {
-            if (wins === 'X') game.matchState = 'X victory';
-            if (wins === 'O') game.matchState = 'O victory';
-            console.log(game.matchState);
-
-
-        }
+        
     },
     addGridEventListeners: function() {
         for (i = 0; i < 3; i++){
@@ -133,8 +159,6 @@ gameboard = {
         cellValue = this.grid[cellId[0]][cellId[2]];
         if (!cellValue) {
             cellValue = game.playerTurn;
-            // increment turn count
-            game.turnCount++;
             if (game.playerTurn === 'X'){
                 this.grid[cellId[0]][cellId[2]] = 'X';
                 game.playerTurn = 'O';
@@ -147,6 +171,7 @@ gameboard = {
             }
         }
         this.drawGridContents();
+        game.handleTurn();
     },
 };
 

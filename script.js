@@ -1,5 +1,5 @@
 game = {
-    matchState: null, // in-progress, null, or victory
+    matchState: null, // in-progress, null, over, or victory
     playerTurn: null,
     turnCount: null,
     roundState: null,
@@ -23,10 +23,24 @@ game = {
         if (player === "playerX") this.player1Score += 1;
         if (player === "playerO") this.player2Score += 1;
         if (this.player1Score === 3 || this.player2Score === 3){
-        this.player1Score > this.player2Score ? this.gameStatusContainer.innerText = 'Congrats Player X!' : this.gameStatusContainer.innerText = 'Congrats Player O!';
+            this.endGame();
         }
     },
+    endGame: function() {
+        this.player1Score > this.player2Score ? this.gameStatusContainer.innerText = 'Congrats Player X! You win!' 
+            : this.gameStatusContainer.innerText = 'Congrats Player O! You win!';
+        this.matchState = 'over';
+        this.renderScoreboard();
+        this.gameStartButton.style.display = 'inline';
+        this.gameStartButton.innerText = 'New Game?';
+    },
     startMatch: function(){
+        if (this.matchState === 'over') {
+            this.player1Score = 0;
+            this.player2Score = 0;
+            this.resetRound();
+            this.matchState = null;
+        }
         if (!this.matchState){
             // randomly select starting player
             if (Math.floor(Math.random()*2) === 0){
@@ -36,12 +50,12 @@ game = {
                 this.playerTurn = '0';
                 this.gameStatusContainer.innerText = 'Player 0 has been randomly selected to go first - make a selection'
             }
+            this.resetRound();
         }
-        if (this.matchState === 'victory') {
+        if (this.matchState === 'X victory' || this.matchState === 'Y victory') {
             this.resetRound();
 
         }
-        this.turnCount = 1;
         this.matchState = 'in-progress';
         this.gameStartButton.style.display = 'none';
         this.renderScoreboard();        
@@ -49,43 +63,46 @@ game = {
     handleTurn: function() {
         // increment turn count
         this.turnCount++;
-        if (this.turnCount){
-            this.turnCountContainer.innerText = this.turnCount;
-        }
+        this.turnCountContainer.innerText = this.turnCount;
         // check for win condition or turn 10
         const wins = this.checkForWinCondition();
         if (wins) {
             if (wins === 'X') this.matchState = 'X victory';
             if (wins === 'O') this.matchState = 'O victory';
         }
-        else if (parseInt(this.turnCount) === 10) this.roundState = 'tie';
+        else if (parseInt(this.turnCount) === 10) this.matchState = 'tie';
         this.evaluateMatchState();
     },
     evaluateMatchState: function() {
         if (this.matchState === 'X victory') {
             this.addToScore('playerX');
+            if (this.matchState === 'over') return;
             this.gameStatusContainer.innerText = 'Player X wins the round and a point!';
             this.renderScoreboard();
-            this.matchState = 'victory';
+            this.matchState = null;
             this.gameStartButton.style.display = 'inline';
         }
         if (this.matchState === 'O victory') {
             this.addToScore('playerO');
+            if (this.matchState === 'over') return;
             this.gameStatusContainer.innerText = 'Player O wins the round and a point!';
             this.renderScoreboard();
-            this.matchState = 'victory';
+            this.matchState = null;
             this.gameStartButton.style.display = 'inline';
         }
-        if (this.roundState === 'tie') {
+        if (this.matchState === 'tie') {
             this.resetRound();
             this.gameStatusContainer.innerText = 'The round is a tie, no points!';
-            renderScoreboard();
+            this.renderScoreboard();
+            this.matchState = null;
+            this.gameStartButton.style.display = 'inline';
         }
     },
     resetRound: function() {
         this.roundState = null;
         this.turnCount = 1;
-        // clear previous round's board
+        this.renderScoreboard();
+        // clear previous round's board        
         gameboard.populateGridWithNull();
         gameboard.drawGridContents();
         this.matchState = 'in-progress';
@@ -122,10 +139,14 @@ game = {
             return null;
         };
         var topLeftDiagonal = function () {
-
+            if (gameboard.grid[0][0] === 'X' && gameboard.grid[1][1] === 'X' && gameboard.grid[2][2] === 'X') return 'X';
+            if (gameboard.grid[0][0] === 'O' && gameboard.grid[1][1] === 'O' && gameboard.grid[2][2] === 'O') return 'O';
+            return null;
         };
         var topRightDiagonal = function() {
-
+            if (gameboard.grid[0][2] === 'X' && gameboard.grid[1][1] === 'X' && gameboard.grid[2][0] === 'X') return 'X';
+            if (gameboard.grid[0][2] === 'O' && gameboard.grid[1][1] === 'O' && gameboard.grid[2][0] === 'O') return 'O';
+            return null;
         };
         if (acrossTop() === 'X' || acrossLeftMiddle() === 'X' || acrossBotom() === 'X' || acrossLeft() === 'X' || acrossTopMiddle() === 'X' 
             || acrossRight() === 'X' || topLeftDiagonal() === 'X' || topRightDiagonal() === 'X') return 'X';
@@ -154,11 +175,15 @@ gameboard = {
                 const gridCellDisplay = document.getElementById(`gridItem${i}-${j}`);
                 if (gridCellValue === 'X'){
                     // set background to X image
-                    gridCellDisplay.innerText = 'X';
+                    // gridCellDisplay.innerText = 'X';
+                    gridCellDisplay.style.backgroundSize = '100% 100%'
+                    gridCellDisplay.style.backgroundImage = 'url("img/letter-x.png")';
 
                 } else if (gridCellValue === 'O'){
                     // set background to O image
-                    gridCellDisplay.innerText = 'O';
+                    // gridCellDisplay.innerText = 'O';
+                    gridCellDisplay.style.backgroundSize = '100% 100%'
+                    gridCellDisplay.style.backgroundImage = 'url("img/letter-o.png")';
                 } else {
                     gridCellDisplay.innerText = '';
                 }
@@ -176,7 +201,7 @@ gameboard = {
         }
     },
     addPlayerSelection: function(event) {
-        if (game.matchState === null || game.matchState === 'victory') return;
+        if (game.matchState === null || game.matchState === 'victory' || game.matchState === 'over') return;
         cellId = event.target.id.slice(8, 11);
         cellValue = this.grid[cellId[0]][cellId[2]];
         if (!cellValue) {
